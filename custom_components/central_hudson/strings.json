@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Central Hudson Electric Rates",
+        "description": "Configure your Central Hudson electric rate monitoring",
+        "data": {
+          "rate_type": "Rate Type"
+        }
+      }
+    }
+  }
+}

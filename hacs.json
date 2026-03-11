@@ -1,0 +1,7 @@
+{
+  "name": "Central Hudson Electric Rates",
+  "content_in_root": false,
+  "filename": "central_hudson",
+  "render_readme": true,
+  "homeassistant": "2024.1.0"
+}

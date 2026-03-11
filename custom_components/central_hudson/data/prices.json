@@ -1,0 +1,11 @@
+{
+  "last_updated": "2026-03-11T16:18:00-04:00",
+  "residential": {
+    "per_kwh": 0.0,
+    "note": "Run scraper/fetch_prices.py to update with actual prices"
+  },
+  "commercial": {
+    "per_kwh": 0.0,
+    "note": "Run scraper/fetch_prices.py to update with actual prices"
+  }
+}

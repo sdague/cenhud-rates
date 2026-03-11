@@ -15,8 +15,8 @@ _LOGGER = logging.getLogger(__name__)
 DOMAIN = "central_hudson"
 
 RATE_TYPES = {
-    "residential": "Residential",
-    "commercial": "Commercial",
+    "standard": "Standard Rate - Fixed rate for all hours",
+    "time_of_use": "Time-of-Use - Automatic (Recommended for TOU customers)",
 }
 
 
@@ -33,14 +33,21 @@ class CentralHudsonConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             await self.async_set_unique_id(f"central_hudson_{user_input['rate_type']}")
             self._abort_if_unique_id_configured()
 
+            # Create a friendly title
+            rate_type = user_input['rate_type']
+            if rate_type == "standard":
+                title = "Central Hudson - Standard Rate"
+            else:
+                title = "Central Hudson - Time-of-Use"
+
             return self.async_create_entry(
-                title=f"Central Hudson {RATE_TYPES[user_input['rate_type']]} Rates",
+                title=title,
                 data=user_input,
             )
 
         data_schema = vol.Schema(
             {
-                vol.Required("rate_type", default="residential"): vol.In(RATE_TYPES),
+                vol.Required("rate_type", default="time_of_use"): vol.In(RATE_TYPES),
             }
         )
 
@@ -48,5 +55,3 @@ class CentralHudsonConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=data_schema,
         )
-
-# Made with Bob

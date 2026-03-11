@@ -103,5 +103,3 @@ async def test_sensor_icon(mock_coordinator):
     sensor = CentralHudsonElectricRateSensor(mock_coordinator, "residential")
 
     assert sensor.icon == "mdi:currency-usd"
-
-# Made with Bob

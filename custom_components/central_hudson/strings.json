@@ -3,9 +3,12 @@
     "step": {
       "user": {
         "title": "Central Hudson Electric Rates",
-        "description": "Configure your Central Hudson electric rate monitoring",
+        "description": "Select your Central Hudson rate plan:",
         "data": {
-          "rate_type": "Rate Type"
+          "rate_type": "Your Rate Plan"
+        },
+        "data_description": {
+          "rate_type": "Standard Rate: You pay the same rate all day. Time-of-Use: Your rate changes based on time - higher during peak hours (Mon-Fri 2pm-7pm), lower at other times."
         }
       }
     }

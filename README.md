@@ -89,9 +89,57 @@ python fetch_prices.py
 2. Check Home Assistant logs for errors
 3. Restart Home Assistant
 
+## Development
+
+### Setup Development Environment
+
+```bash
+# Install development dependencies
+make install-dev
+# or
+pip install -r requirements-dev.txt
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+make test
+
+# Run with verbose output
+pytest tests/ -v
+```
+
+### Code Quality
+
+```bash
+# Run linting
+make lint
+
+# Format code
+make format
+
+# Validate HACS compatibility
+make validate-hacs
+```
+
+### Available Make Commands
+
+- `make test` - Run pytest tests
+- `make lint` - Run ruff linting
+- `make format` - Format code with ruff
+- `make validate-hacs` - Run HACS validation checks
+- `make install-dev` - Install development dependencies
+- `make clean` - Clean up temporary files
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+Before submitting:
+1. Run `make test` to ensure tests pass
+2. Run `make lint` to check code quality
+3. Run `make validate-hacs` to verify HACS compatibility
 
 ## License
 

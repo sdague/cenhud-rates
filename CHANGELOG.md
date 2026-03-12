@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Development requirements file (requirements-dev.txt)
 - CI status badge in README
 - Brand icon (custom_components/central_hudson/brand/icon.png) with Central Hudson blue and lightning bolt
+- Local HACS validation script (scripts/validate-hacs.sh)
+- Makefile with common development commands
+- Development section in README with setup and testing instructions
 
 ## [1.0.0] - 2026-03-11
 

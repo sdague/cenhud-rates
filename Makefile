@@ -14,6 +14,7 @@ test:
 
 lint:
 	ruff check custom_components/ tests/ scraper/
+	ruff format --check custom_components/ tests/ scraper/
 
 format:
 	ruff format custom_components/ tests/ scraper/

@@ -3,10 +3,10 @@
   "name": "Central Hudson Electric Rates",
   "codeowners": ["@sdague"],
   "config_flow": true,
-  "documentation": "https://github.com/sdague/central-hudson-electric-rates",
+  "documentation": "https://github.com/sdague/cenhud-rates",
   "integration_type": "service",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/sdague/central-hudson-electric-rates/issues",
+  "issue_tracker": "https://github.com/sdague/cenhud-rates/issues",
   "requirements": [],
   "version": "1.0.0"
 }

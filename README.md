@@ -19,7 +19,7 @@ A Home Assistant custom component that provides Central Hudson electricity rate 
 2. Click on "Integrations"
 3. Click the three dots in the top right corner
 4. Select "Custom repositories"
-5. Add this repository URL: `https://github.com/sdague/central-hudson-electric-rates`
+5. Add this repository URL: `https://github.com/sdague/cenhud-rates`
 6. Select category "Integration"
 7. Click "Add"
 8. Find "Central Hudson Electric Rates" in the integration list and click "Download"

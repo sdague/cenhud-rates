@@ -1,6 +1,7 @@
 # Central Hudson Electric Rates
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
+[![CI](https://github.com/sdague/cenhud-rates/actions/workflows/ci.yml/badge.svg)](https://github.com/sdague/cenhud-rates/actions/workflows/ci.yml)
 
 A Home Assistant custom component that provides Central Hudson electricity rate information as sensors.
 

@@ -1,4 +1,5 @@
 """Config flow for Central Hudson Electric Rates integration."""
+
 from __future__ import annotations
 
 import logging
@@ -32,7 +33,7 @@ class CentralHudsonConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._abort_if_unique_id_configured()
 
             # Create a friendly title
-            rate_type = user_input['rate_type']
+            rate_type = user_input["rate_type"]
             if rate_type == "standard":
                 title = "Central Hudson - Standard Rate"
             else:

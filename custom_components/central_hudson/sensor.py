@@ -1,4 +1,5 @@
 """Sensor platform for Central Hudson Electric Rates."""
+
 from __future__ import annotations
 
 import json
@@ -72,7 +73,7 @@ class CentralHudsonDataCoordinator(DataUpdateCoordinator):
                 sorted_rates = sorted(
                     raw_data["rates"],
                     key=lambda x: x.get("effective_date", ""),
-                    reverse=True
+                    reverse=True,
                 )
                 current_rate = sorted_rates[0]
 
@@ -83,13 +84,15 @@ class CentralHudsonDataCoordinator(DataUpdateCoordinator):
                     "last_updated": current_rate.get("last_updated"),
                     "standard": current_rate.get("standard", {}),
                     "time_of_use": current_rate.get("time_of_use", {}),
-                    "historical_rates": raw_data["rates"]  # Keep all historical data
+                    "historical_rates": raw_data["rates"],  # Keep all historical data
                 }
             else:
                 # Fallback for old format
                 data = raw_data
 
-            _LOGGER.debug("Loaded current price data from %s", data.get("effective_date"))
+            _LOGGER.debug(
+                "Loaded current price data from %s", data.get("effective_date")
+            )
             return data
 
         except Exception as err:

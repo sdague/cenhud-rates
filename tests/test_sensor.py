@@ -1,4 +1,5 @@
 """Tests for the Central Hudson sensor platform."""
+
 import json
 from pathlib import Path
 from unittest.mock import patch
@@ -49,23 +50,24 @@ async def mock_coordinator(hass: HomeAssistant, mock_prices_data):
 
 
 @pytest.mark.asyncio
-async def test_coordinator_update_success(hass: HomeAssistant, mock_prices_data, tmp_path):
+async def test_coordinator_update_success(
+    hass: HomeAssistant, mock_prices_data, tmp_path
+):
     """Test successful data update."""
     # Create temporary prices file with the new format (rates array)
     data_file = tmp_path / "data" / "prices.json"
     data_file.parent.mkdir(parents=True, exist_ok=True)
 
     # Wrap in rates array format
-    file_data = {
-        "customer_charge": 18.00,
-        "rates": [mock_prices_data]
-    }
+    file_data = {"customer_charge": 18.00, "rates": [mock_prices_data]}
     data_file.write_text(json.dumps(file_data))
 
     coordinator = CentralHudsonDataCoordinator(hass)
 
     # Mock the __file__ path to point to our temp directory
-    with patch("custom_components.central_hudson.sensor.__file__", str(tmp_path / "sensor.py")):
+    with patch(
+        "custom_components.central_hudson.sensor.__file__", str(tmp_path / "sensor.py")
+    ):
         data = await coordinator._async_update_data()
 
     assert data["standard"]["total_per_kwh"] == 0.15

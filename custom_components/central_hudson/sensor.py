@@ -13,7 +13,6 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfEnergy
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import (
@@ -64,7 +63,7 @@ class CentralHudsonDataCoordinator(DataUpdateCoordinator):
             if not data_file.exists():
                 raise UpdateFailed(f"Prices data file not found: {data_file}")
 
-            with open(data_file, "r") as f:
+            with open(data_file) as f:
                 raw_data = json.load(f)
 
             # Get the most recent rate entry

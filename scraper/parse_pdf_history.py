@@ -10,7 +10,6 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-
 # Fixed delivery charges (these don't change monthly like supply charges)
 DELIVERY_CHARGES = {
     "standard": 0.13860,

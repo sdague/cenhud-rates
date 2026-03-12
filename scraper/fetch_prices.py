@@ -4,10 +4,11 @@ Scraper script to fetch Central Hudson electricity prices.
 Run this monthly to update the prices data file.
 """
 import json
+import sys
+from datetime import datetime
+
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime
-import sys
 
 
 def fetch_prices():
@@ -87,7 +88,7 @@ def save_prices(new_rate, output_file='../custom_components/central_hudson/data/
 
     # Load existing data if file exists
     if os.path.exists(output_file):
-        with open(output_file, 'r') as f:
+        with open(output_file) as f:
             data = json.load(f)
     else:
         data = {
@@ -120,7 +121,7 @@ def save_prices(new_rate, output_file='../custom_components/central_hudson/data/
 
     print(f"Prices saved to {output_file}")
     print(f"Total historical rates: {len(data['rates'])}")
-    print(f"Current rate (most recent):")
+    print("Current rate (most recent):")
     print(json.dumps(data['rates'][0], indent=2))
     return True
 

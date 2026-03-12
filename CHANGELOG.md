@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.1.0] - 2026-03-12
 
 ### Added
 - GitHub Actions CI workflow for automated testing
@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Local HACS validation script (scripts/validate-hacs.sh)
 - Makefile with common development commands
 - Development section in README with setup and testing instructions
+- pytest.ini for async test configuration
+
+### Fixed
+- All tests now pass with async fixtures
+- Linting issues resolved (import order, unused imports, unnecessary file modes)
+- Test data structure updated to match current implementation
 
 ## [1.0.0] - 2026-03-11
 

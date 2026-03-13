@@ -22,6 +22,8 @@ from homeassistant.helpers.update_coordinator import (
     UpdateFailed,
 )
 
+from .utils import is_on_peak_time
+
 _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = timedelta(hours=1)
@@ -124,16 +126,8 @@ class CentralHudsonElectricRateSensor(CoordinatorEntity, SensorEntity):
             self._attr_name = f"{rate_type.capitalize()} Electric Rate"
 
     def _is_on_peak(self) -> bool:
-        """Determine if current time is on-peak (Mon-Fri 2pm-7pm)."""
-        now = datetime.now()
-
-        # Check if weekday (Monday=0, Friday=4)
-        if now.weekday() > 4:  # Saturday=5, Sunday=6
-            return False
-
-        # Check if between 2pm (14:00) and 7pm (19:00)
-        hour = now.hour
-        return 14 <= hour < 19
+        """Determine if current time is on-peak (Mon-Fri 2pm-7pm, excluding holidays)."""
+        return is_on_peak_time()
 
     @property
     def native_value(self) -> float | None:

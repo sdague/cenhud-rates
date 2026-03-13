@@ -1,0 +1,169 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (leave empty to use manifest.json version)'
+        required: false
+        type: string
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Get version from manifest
+      id: get-version
+      run: |
+        if [ -n "${{ inputs.version }}" ]; then
+          VERSION="${{ inputs.version }}"
+        else
+          VERSION=$(python -c "import json; print(json.load(open('custom_components/central_hudson/manifest.json'))['version'])")
+        fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Version to release: $VERSION"
+
+    - name: Validate version format
+      run: |
+        VERSION="${{ steps.get-version.outputs.version }}"
+        if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "Error: Version must be in format X.Y.Z (e.g., 1.2.0)"
+          exit 1
+        fi
+
+    - name: Check if tag already exists
+      run: |
+        VERSION="${{ steps.get-version.outputs.version }}"
+        if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+          echo "Error: Tag v$VERSION already exists"
+          exit 1
+        fi
+
+  test:
+    needs: validate
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+
+    - name: Run tests
+      run: |
+        pytest tests/ -v
+
+    - name: Validate manifest
+      run: |
+        python -c "import json; json.load(open('custom_components/central_hudson/manifest.json'))"
+
+    - name: Validate prices data
+      run: |
+        python -c "import json; data = json.load(open('custom_components/central_hudson/data/prices.json')); assert 'rates' in data"
+
+  lint:
+    needs: validate
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+
+    - name: Lint with ruff
+      run: |
+        ruff check custom_components/ tests/ scraper/
+
+    - name: Check formatting with ruff
+      run: |
+        ruff format --check custom_components/ tests/ scraper/
+
+  hacs-validation:
+    needs: validate
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: HACS validation
+      uses: hacs/action@main
+      with:
+        category: integration
+
+  create-release:
+    needs: [validate, test, lint, hacs-validation]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Extract changelog for this version
+      id: changelog
+      run: |
+        VERSION="${{ needs.validate.outputs.version }}"
+        python scripts/extract-changelog.py "$VERSION" > release-notes.md
+        cat release-notes.md
+
+    - name: Create release archive
+      run: |
+        VERSION="${{ needs.validate.outputs.version }}"
+        cd custom_components
+        zip -r ../central-hudson-$VERSION.zip central_hudson/
+        cd ..
+        echo "Created central-hudson-$VERSION.zip"
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ needs.validate.outputs.version }}
+        name: Release v${{ needs.validate.outputs.version }}
+        body_path: release-notes.md
+        draft: false
+        prerelease: false
+        files: |
+          central-hudson-${{ needs.validate.outputs.version }}.zip
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Release summary
+      run: |
+        VERSION="${{ needs.validate.outputs.version }}"
+        echo "## Release v$VERSION created successfully! 🎉" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### What's next?" >> $GITHUB_STEP_SUMMARY
+        echo "- Release is now available on GitHub" >> $GITHUB_STEP_SUMMARY
+        echo "- HACS users will be notified of the update" >> $GITHUB_STEP_SUMMARY
+        echo "- Users can download the zip file or update via HACS" >> $GITHUB_STEP_SUMMARY
+
+# Made with Bob

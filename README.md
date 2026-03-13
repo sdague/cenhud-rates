@@ -131,6 +131,24 @@ make validate-hacs
 - `make validate-hacs` - Run HACS validation checks
 - `make install-dev` - Install development dependencies
 - `make clean` - Clean up temporary files
+- `make prepare-release VERSION=x.y.z` - Prepare a new release
+
+### Creating a Release
+
+See [docs/RELEASE_PROCESS.md](docs/RELEASE_PROCESS.md) for detailed instructions on creating releases.
+
+Quick start:
+```bash
+# Prepare release
+make prepare-release VERSION=1.2.0
+
+# Commit and push
+git add .
+git commit -m "Prepare release 1.2.0"
+git push
+
+# Then trigger the release workflow on GitHub Actions
+```
 
 ## Contributing
 

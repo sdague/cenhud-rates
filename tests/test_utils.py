@@ -1,7 +1,7 @@
 """Tests for Central Hudson utility functions."""
 
-from datetime import date, datetime
-from unittest.mock import Mock, patch
+from datetime import date
+from unittest.mock import Mock
 
 from custom_components.central_hudson.utils import get_us_holidays, is_on_peak_time
 
@@ -186,5 +186,6 @@ def test_is_on_peak_friday():
     mock_now.hour = 18
 
     assert is_on_peak_time(mock_now) is True
+
 
 # Made with Bob

@@ -1,4 +1,4 @@
-.PHONY: help test lint format validate-hacs install-dev clean prepare-release
+.PHONY: help test lint format validate-hacs install-dev install-hooks clean prepare-release
 
 help:
 	@echo "Available commands:"
@@ -7,6 +7,7 @@ help:
 	@echo "  make format            - Format code with ruff"
 	@echo "  make validate-hacs     - Run HACS validation checks"
 	@echo "  make install-dev       - Install development dependencies"
+	@echo "  make install-hooks     - Install git pre-commit hooks"
 	@echo "  make clean             - Clean up temporary files"
 	@echo "  make prepare-release   - Prepare a new release (requires VERSION=x.y.z)"
 
@@ -25,6 +26,9 @@ validate-hacs:
 
 install-dev:
 	pip install -r requirements-dev.txt
+
+install-hooks:
+	./scripts/install-hooks.sh
 
 clean:
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true

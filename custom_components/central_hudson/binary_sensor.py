@@ -100,4 +100,5 @@ class CentralHudsonOnPeakSensor(CoordinatorEntity, BinarySensorEntity):
 
         return attrs
 
+
 # Made with Bob

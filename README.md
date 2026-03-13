@@ -98,7 +98,12 @@ python fetch_prices.py
 make install-dev
 # or
 pip install -r requirements-dev.txt
+
+# Install git pre-commit hooks (recommended)
+make install-hooks
 ```
+
+The pre-commit hook will automatically run linting before each commit to ensure code quality.
 
 ### Running Tests
 
@@ -130,6 +135,7 @@ make validate-hacs
 - `make format` - Format code with ruff
 - `make validate-hacs` - Run HACS validation checks
 - `make install-dev` - Install development dependencies
+- `make install-hooks` - Install git pre-commit hooks
 - `make clean` - Clean up temporary files
 - `make prepare-release VERSION=x.y.z` - Prepare a new release
 

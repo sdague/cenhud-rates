@@ -1,6 +1,6 @@
 """Tests for Central Hudson binary sensor platform."""
 
-from datetime import date, datetime
+from datetime import datetime
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
@@ -286,5 +286,6 @@ def test_on_peak_holiday_attribute(mock_coordinator):
 
         assert attrs["is_holiday"] == "True"
         assert attrs["holiday_name"] == "Christmas"
+
 
 # Made with Bob

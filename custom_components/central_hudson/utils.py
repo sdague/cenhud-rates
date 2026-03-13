@@ -73,4 +73,5 @@ def is_on_peak_time(now=None) -> bool:
     hour = now.hour
     return 14 <= hour < 19
 
+
 # Made with Bob

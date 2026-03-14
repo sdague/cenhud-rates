@@ -1,6 +1,11 @@
 name: Release
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'custom_components/central_hudson/manifest.json'
   workflow_dispatch:
     inputs:
       version:

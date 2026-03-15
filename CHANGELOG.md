@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Fixed `fetch_prices_selenium.py` scraper to correctly extract supply charges only (not total charges)
+- Fixed scraper to skip the first row of prices which contains 12-month averages
+- Updated rate format to properly separate supply charges from delivery charges
+
 ## [1.2.1] - 2026-03-14
 
 ### Fixed

@@ -45,27 +45,41 @@ pip install -r requirements.txt
 python fetch_prices_improved.py
 ```
 
-### 3. fetch_prices_selenium.py (Advanced)
+### 3. fetch_prices_selenium.py (Recommended - Working)
 Uses Selenium for JavaScript-rendered content.
 
-**When to use:**
-- When other scrapers fail
-- When content loads dynamically
-- When you need to interact with the page (click tabs, etc.)
+**Status:** ✅ **WORKING** - This is the recommended scraper as of March 2026.
+
+**Why this scraper is needed:**
+The Central Hudson website loads pricing data dynamically using JavaScript after the initial page load. The pricing table is not present in the initial HTML response, which is why requests-based scrapers (fetch_prices.py and fetch_prices_improved.py) cannot extract the data reliably.
+
+**How it works:**
+1. Launches a headless Chrome browser
+2. Navigates to the pricing page
+3. Waits for the page to load and scrolls to trigger content loading
+4. Waits for pricing data to appear (looks for "$0." text patterns)
+5. Extracts data from the dynamically-loaded HTML table
+6. Saves rates to prices.json
 
 **Requirements:**
 ```bash
-pip install selenium webdriver-manager
+pip install -r requirements.txt
+# This now includes selenium and webdriver-manager
 ```
 
 **Usage:**
 ```bash
-# Headless mode (default)
+# Headless mode (default, recommended)
 python fetch_prices_selenium.py
 
 # Visible browser (for debugging)
 python fetch_prices_selenium.py --visible
 ```
+
+**What it extracts:**
+- Standard residential rate ($/kWh)
+- Time-of-Use on-peak rate ($/kWh)
+- Time-of-Use off-peak rate ($/kWh)
 
 ## Output
 
@@ -102,22 +116,29 @@ Format:
 
 ### Scraper Returns No Data
 
-1. **Check the website manually:**
-   Visit: https://www.cenhud.com/en/account-resources/rates/gas--electric-supply-prices/
+**As of March 2026:** The Central Hudson website uses dynamic JavaScript to load pricing data. Only the Selenium scraper (fetch_prices_selenium.py) works reliably.
 
-2. **Try the improved scraper:**
+1. **Use the Selenium scraper (recommended):**
    ```bash
-   python fetch_prices_improved.py
+   python fetch_prices_selenium.py
    ```
 
-3. **Try Selenium scraper with visible browser:**
-   ```bash
-   python fetch_prices_selenium.py --visible
-   ```
-   Watch what happens and see where it fails.
+2. **If Selenium scraper fails:**
+   - Check the website manually: https://www.cenhud.com/en/account-resources/rates/gas--electric-supply-prices/
+   - Try with visible browser to see what's happening:
+     ```bash
+     python fetch_prices_selenium.py --visible
+     ```
+   - Check the generated `scraper_screenshot.png` and `scraper_page.html` for debugging
 
-4. **Check for website changes:**
+3. **Check for website changes:**
    The website structure may have changed. You may need to update the scraper logic.
+
+4. **Why other scrapers don't work:**
+   - `fetch_prices.py` and `fetch_prices_improved.py` use requests/BeautifulSoup
+   - These tools only see the initial HTML, not JavaScript-rendered content
+   - The pricing table is loaded dynamically after page load
+   - Selenium is required to wait for and extract the dynamic content
 
 ### Common Issues
 
@@ -139,10 +160,15 @@ The Selenium scraper automatically downloads ChromeDriver. If it fails:
 ```
 
 **Issue: "All strategies failed"**
-The website structure has likely changed. You'll need to:
-1. Inspect the website HTML
-2. Update the extraction logic in the scraper
-3. Or manually update prices.json
+If using fetch_prices.py or fetch_prices_improved.py:
+- These scrapers don't work with the current website (as of March 2026)
+- Use fetch_prices_selenium.py instead
+
+If using fetch_prices_selenium.py and it fails:
+1. Run with `--visible` flag to see what's happening
+2. Check `scraper_screenshot.png` to see if the table loaded
+3. Check `scraper_page.html` to see the page source
+4. The website structure may have changed - update the extraction logic
 
 ## Manual Price Updates
 

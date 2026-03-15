@@ -2,26 +2,8 @@
   "customer_charge": 22.5,
   "rates": [
     {
-      "effective_date": "2026-03-14",
-      "last_updated": "2026-03-14T20:05:31.782663",
-      "standard": {
-        "supply_charge": 0.14228,
-        "description": "Standard residential supply charge (delivery charge must be added separately)"
-      },
-      "time_of_use": {
-        "on_peak": {
-          "supply_charge": 0.1832,
-          "description": "Time-of-Use on-peak supply charge (delivery charge must be added separately)"
-        },
-        "off_peak": {
-          "supply_charge": 0.13575,
-          "description": "Time-of-Use off-peak supply charge (delivery charge must be added separately)"
-        }
-      }
-    },
-    {
       "effective_date": "2026-03-12",
-      "last_updated": "2026-03-14T06:48:00-04:00",
+      "last_updated": "2026-03-15T06:52:48.029735",
       "standard": {
         "supply_charge": 0.14228,
         "delivery_charge": 0.1386,

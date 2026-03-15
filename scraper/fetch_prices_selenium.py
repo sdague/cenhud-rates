@@ -74,6 +74,87 @@ class SeleniumScraper:
                 return None
         return None
 
+    def extract_date(self, text):
+        """Extract date from text in format like 'Feb 11, 2026' or 'February 11, 2026'."""
+        if not text:
+            return None
+
+        # Month name mapping
+        months = {
+            "jan": 1,
+            "january": 1,
+            "feb": 2,
+            "february": 2,
+            "mar": 3,
+            "march": 3,
+            "apr": 4,
+            "april": 4,
+            "may": 5,
+            "jun": 6,
+            "june": 6,
+            "jul": 7,
+            "july": 7,
+            "aug": 8,
+            "august": 8,
+            "sep": 9,
+            "september": 9,
+            "oct": 10,
+            "october": 10,
+            "nov": 11,
+            "november": 11,
+            "dec": 12,
+            "december": 12,
+        }
+
+        # Try to parse date format like "Feb 11, 2026"
+        match = re.search(r"(\w+)\s+(\d{1,2}),?\s+(\d{4})", text.lower())
+        if match:
+            month_str, day, year = match.groups()
+            month = months.get(month_str[:3])
+            if month:
+                try:
+                    date_obj = datetime(int(year), month, int(day))
+                    return date_obj.strftime("%Y-%m-%d")
+                except ValueError:
+                    pass
+
+        return None
+
+    def get_latest_delivery_charges(self):
+        """Get delivery charges from the most recent historical data."""
+        try:
+            prices_file = (
+                Path(__file__).parent.parent
+                / "custom_components"
+                / "central_hudson"
+                / "data"
+                / "prices.json"
+            )
+            if prices_file.exists():
+                with open(prices_file) as f:
+                    data = json.load(f)
+                    rates = data.get("rates", [])
+                    if rates:
+                        # Get the most recent rate with delivery charges
+                        for rate in rates:
+                            standard = rate.get("standard", {})
+                            tou = rate.get("time_of_use", {})
+
+                            if "delivery_charge" in standard:
+                                return {
+                                    "standard": standard.get("delivery_charge"),
+                                    "on_peak": tou.get("on_peak", {}).get(
+                                        "delivery_charge"
+                                    ),
+                                    "off_peak": tou.get("off_peak", {}).get(
+                                        "delivery_charge"
+                                    ),
+                                }
+        except Exception as e:
+            print(f"  Warning: Could not load delivery charges: {e}")
+
+        return None
+
     def wait_for_content(self):
         """Wait for page content to load."""
         print("Waiting for page to load...")
@@ -179,11 +260,17 @@ class SeleniumScraper:
 
                         # Get the date/label from first column
                         if len(cells) > 0:
-                            label = cells[0].text.strip().lower()
+                            label = cells[0].text.strip()
+                            label_lower = label.lower()
 
-                            # Look for rows with actual month names (skip "avg" which is 12-month average)
+                            # Skip the 12-month average row (contains "avg")
+                            if "avg" in label_lower or "average" in label_lower:
+                                print(f"    Skipping average row: {label}")
+                                continue
+
+                            # Look for rows with actual month names
                             if any(
-                                month in label
+                                month in label_lower
                                 for month in [
                                     "jan",
                                     "feb",
@@ -199,13 +286,19 @@ class SeleniumScraper:
                                     "dec",
                                 ]
                             ):
-                                # Skip if we already found rates (first data row after avg is what we want)
+                                # Skip if we already found rates (first data row is what we want)
                                 if rates:
                                     print(f"    Skipping additional row: {label}")
                                     continue
 
                                 print(f"    Processing row: {label}")
                                 print(f"      Row has {len(cells)} cells")
+
+                                # Extract effective date from first column
+                                effective_date = self.extract_date(label)
+                                if effective_date:
+                                    rates["effective_date"] = effective_date
+                                    print(f"      Effective date: {effective_date}")
 
                                 # Extract all prices from the row
                                 for cell_idx, cell in enumerate(cells):
@@ -275,7 +368,6 @@ class SeleniumScraper:
             lines = page_text.split("\n")
 
             found_header = False
-            skip_first_data_row = True  # Skip the 12-month average row
 
             for i, line in enumerate(lines):
                 # Look for the header row
@@ -288,9 +380,16 @@ class SeleniumScraper:
 
                 # After finding header, look for data rows
                 if found_header and i < len(lines) - 1:
-                    # Check if this line has a date pattern (month name, skip "avg")
+                    line_lower = line.lower()
+
+                    # Skip the 12-month average row
+                    if "avg" in line_lower or "average" in line_lower:
+                        print(f"  Skipping average row: {line}")
+                        continue
+
+                    # Check if this line has a date pattern (month name)
                     if any(
-                        month in line.lower()
+                        month in line_lower
                         for month in [
                             "jan",
                             "feb",
@@ -306,13 +405,19 @@ class SeleniumScraper:
                             "dec",
                         ]
                     ):
-                        # Skip the first data row (12-month average)
-                        if skip_first_data_row:
-                            print(f"  Skipping 12-month average row: {line}")
-                            skip_first_data_row = False
+                        # Skip if we already found rates
+                        if rates:
+                            print(f"  Skipping additional row: {line}")
                             continue
 
                         print(f"  Found data row: {line}")
+
+                        # Extract effective date
+                        effective_date = self.extract_date(line)
+                        if effective_date:
+                            rates["effective_date"] = effective_date
+                            print(f"    Effective date: {effective_date}")
+
                         # Extract all prices from this line
                         prices = re.findall(r"\$?([\d.]+)", line)
                         if len(prices) >= 3:
@@ -390,36 +495,80 @@ class SeleniumScraper:
                 print("✓ Browser closed")
 
     def format_rates(self, raw_rates):
-        """Format rates into standard structure with supply charges only."""
+        """Format rates into standard structure with supply and delivery charges."""
+        # Use extracted effective date or default to today
+        effective_date = raw_rates.get(
+            "effective_date", datetime.now().strftime("%Y-%m-%d")
+        )
+
         formatted = {
-            "effective_date": datetime.now().strftime("%Y-%m-%d"),
+            "effective_date": effective_date,
             "last_updated": datetime.now().isoformat(),
             "standard": {},
             "time_of_use": {"on_peak": {}, "off_peak": {}},
         }
 
-        # These are supply charges only from the website
+        # Get delivery charges from historical data
+        delivery_charges = self.get_latest_delivery_charges()
+
+        # Format standard rate
         if "residential_supply" in raw_rates:
             formatted["standard"]["supply_charge"] = raw_rates["residential_supply"]
-            formatted["standard"]["description"] = (
-                "Standard residential supply charge (delivery charge must be added separately)"
-            )
 
+            if delivery_charges and delivery_charges.get("standard"):
+                formatted["standard"]["delivery_charge"] = delivery_charges["standard"]
+                formatted["standard"]["total_per_kwh"] = round(
+                    raw_rates["residential_supply"] + delivery_charges["standard"], 5
+                )
+                formatted["standard"]["description"] = (
+                    "Standard residential rate (supply + delivery)"
+                )
+            else:
+                formatted["standard"]["description"] = (
+                    "Standard residential supply charge (delivery charge must be added separately)"
+                )
+
+        # Format on-peak rate
         if "on_peak_supply" in raw_rates:
             formatted["time_of_use"]["on_peak"]["supply_charge"] = raw_rates[
                 "on_peak_supply"
             ]
-            formatted["time_of_use"]["on_peak"]["description"] = (
-                "Time-of-Use on-peak supply charge (delivery charge must be added separately)"
-            )
 
+            if delivery_charges and delivery_charges.get("on_peak"):
+                formatted["time_of_use"]["on_peak"]["delivery_charge"] = (
+                    delivery_charges["on_peak"]
+                )
+                formatted["time_of_use"]["on_peak"]["total_per_kwh"] = round(
+                    raw_rates["on_peak_supply"] + delivery_charges["on_peak"], 5
+                )
+                formatted["time_of_use"]["on_peak"]["description"] = (
+                    "Time-of-Use on-peak rate (supply + delivery)"
+                )
+            else:
+                formatted["time_of_use"]["on_peak"]["description"] = (
+                    "Time-of-Use on-peak supply charge (delivery charge must be added separately)"
+                )
+
+        # Format off-peak rate
         if "off_peak_supply" in raw_rates:
             formatted["time_of_use"]["off_peak"]["supply_charge"] = raw_rates[
                 "off_peak_supply"
             ]
-            formatted["time_of_use"]["off_peak"]["description"] = (
-                "Time-of-Use off-peak supply charge (delivery charge must be added separately)"
-            )
+
+            if delivery_charges and delivery_charges.get("off_peak"):
+                formatted["time_of_use"]["off_peak"]["delivery_charge"] = (
+                    delivery_charges["off_peak"]
+                )
+                formatted["time_of_use"]["off_peak"]["total_per_kwh"] = round(
+                    raw_rates["off_peak_supply"] + delivery_charges["off_peak"], 5
+                )
+                formatted["time_of_use"]["off_peak"]["description"] = (
+                    "Time-of-Use off-peak rate (supply + delivery)"
+                )
+            else:
+                formatted["time_of_use"]["off_peak"]["description"] = (
+                    "Time-of-Use off-peak supply charge (delivery charge must be added separately)"
+                )
 
         return formatted
 

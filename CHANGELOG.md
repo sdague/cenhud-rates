@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Fixed `fetch_prices_selenium.py` scraper to properly skip 12-month average row
+- Added extraction of effective date from first column of pricing data
+- Added automatic calculation of total_per_kwh using delivery charges from historical data
+- Scraper now includes delivery_charge and total_per_kwh in output when historical data is available
+
 ## [1.2.2] - 2026-03-15
 
 ### Fixed

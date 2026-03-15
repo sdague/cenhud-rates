@@ -85,9 +85,34 @@ class SeleniumScraper:
                 )
             )
             print("✓ Page loaded")
+
+            # Scroll down to trigger dynamic content loading
+            print("Scrolling to load dynamic content...")
+            self.driver.execute_script(
+                "window.scrollTo(0, document.body.scrollHeight);"
+            )
+            time.sleep(3)
+
+            # Wait for actual pricing data to appear (look for dollar amounts)
+            print("Waiting for pricing data to render...")
+            WebDriverWait(self.driver, 20).until(
+                EC.presence_of_element_located(
+                    (
+                        By.XPATH,
+                        "//*[contains(text(), 'Standard Rate') or contains(text(), '$0.')]",
+                    )
+                )
+            )
+            print("✓ Pricing data loaded")
+
+            # Give extra time for all data to render
+            time.sleep(2)
             return True
         except Exception as e:
             print(f"✗ Timeout waiting for content: {e}")
+            import traceback
+
+            traceback.print_exc()
             return False
 
     def click_electric_tab(self):
@@ -112,50 +137,127 @@ class SeleniumScraper:
         rates = {}
 
         try:
+            # Try to find tables by tag
             tables = self.driver.find_elements(By.TAG_NAME, "table")
-            print(f"  Found {len(tables)} tables")
+            print(f"  Found {len(tables)} <table> elements")
 
-            for _table_idx, table in enumerate(tables):
+            # Also try to find table-like structures by looking for the pricing header
+            if not tables:
+                print("  No <table> tags found, looking for table-like structures...")
+                # Look for elements containing the pricing data
+                potential_tables = self.driver.find_elements(
+                    By.XPATH,
+                    "//*[contains(text(), 'Electric Supply Prices')]/following::*[contains(@class, 'table') or contains(@role, 'table')]",
+                )
+                if potential_tables:
+                    print(f"  Found {len(potential_tables)} potential table structures")
+                    tables = potential_tables
+
+            for table_idx, table in enumerate(tables):
                 rows = table.find_elements(By.TAG_NAME, "tr")
+                print(f"  Analyzing table {table_idx + 1} with {len(rows)} rows")
 
-                for row in rows:
+                # Look for header rows to identify columns
+                # The table may have nested headers (Time-of-Use Rates* spans On-Peak and Off-Peak)
+                header_row = None
+
+                for row_idx, row in enumerate(rows):
                     try:
+                        # Check if this is a header row
+                        headers = row.find_elements(By.TAG_NAME, "th")
+                        if headers and not header_row:
+                            header_row = row_idx
+                            for col_idx, header in enumerate(headers):
+                                header_text = header.text.strip().lower()
+                                print(f"    Header col {col_idx}: {header_text}")
+                            continue
+
+                        # Extract data rows
                         cells = row.find_elements(By.TAG_NAME, "td")
                         if not cells:
-                            cells = row.find_elements(By.TAG_NAME, "th")
+                            continue
 
-                        if len(cells) >= 2:
+                        # Get the date/label from first column
+                        if len(cells) > 0:
                             label = cells[0].text.strip().lower()
-                            value_text = cells[1].text.strip()
-                            price = self.extract_price(value_text)
 
-                            if price and label:
-                                print(f"    Found: {label} = {price}")
+                            # Look for rows with actual month names (skip "avg" which is 12-month average)
+                            if any(
+                                month in label
+                                for month in [
+                                    "jan",
+                                    "feb",
+                                    "mar",
+                                    "apr",
+                                    "may",
+                                    "jun",
+                                    "jul",
+                                    "aug",
+                                    "sep",
+                                    "oct",
+                                    "nov",
+                                    "dec",
+                                ]
+                            ):
+                                # Skip if we already found rates (first data row after avg is what we want)
+                                if rates:
+                                    print(f"    Skipping additional row: {label}")
+                                    continue
 
-                                if any(
-                                    kw in label
-                                    for kw in [
-                                        "residential",
-                                        "standard",
-                                        "service class 1",
+                                print(f"    Processing row: {label}")
+                                print(f"      Row has {len(cells)} cells")
+
+                                # Extract all prices from the row
+                                for cell_idx, cell in enumerate(cells):
+                                    cell_text = cell.text.strip()
+                                    if cell_text and "$" in cell_text:
+                                        print(f"      Cell {cell_idx}: {cell_text}")
+
+                                # Try to extract based on column positions
+                                # Typically: [Date, Standard, On-Peak, Off-Peak]
+                                # These are SUPPLY charges only
+                                if len(cells) >= 2:
+                                    price = self.extract_price(cells[1].text)
+                                    if price:
+                                        rates["residential_supply"] = price
+                                        print(f"      Standard supply: {price}")
+
+                                if len(cells) >= 3:
+                                    price = self.extract_price(cells[2].text)
+                                    if price:
+                                        rates["on_peak_supply"] = price
+                                        print(f"      On-peak supply: {price}")
+
+                                if len(cells) >= 4:
+                                    price = self.extract_price(cells[3].text)
+                                    if price:
+                                        rates["off_peak_supply"] = price
+                                        print(f"      Off-peak supply: {price}")
+
+                                # If we found all rates, we can stop
+                                if all(
+                                    k in rates
+                                    for k in [
+                                        "residential_supply",
+                                        "on_peak_supply",
+                                        "off_peak_supply",
                                     ]
                                 ):
-                                    if "kwh" in label:
-                                        rates["residential_per_kwh"] = price
-                                elif "commercial" in label:
-                                    if "kwh" in label:
-                                        rates["commercial_per_kwh"] = price
-                                elif "on-peak" in label or "on peak" in label:
-                                    if "kwh" in label:
-                                        rates["on_peak_per_kwh"] = price
-                                elif "off-peak" in label or "off peak" in label:
-                                    if "kwh" in label:
-                                        rates["off_peak_per_kwh"] = price
-                    except Exception:
+                                    break
+
+                    except Exception as e:
+                        print(f"    Error processing row: {e}")
                         continue
+
+                # If we found rates in this table, stop looking
+                if rates:
+                    break
 
         except Exception as e:
             print(f"  Error extracting from tables: {e}")
+            import traceback
+
+            traceback.print_exc()
 
         return rates if rates else None
 
@@ -166,25 +268,81 @@ class SeleniumScraper:
 
         try:
             page_text = self.driver.find_element(By.TAG_NAME, "body").text
+            print(f"  Page text length: {len(page_text)} characters")
 
-            patterns = [
-                (r"residential[:\s]+\$?([\d.]+)\s*[¢/]*\s*kwh", "residential_per_kwh"),
-                (r"commercial[:\s]+\$?([\d.]+)\s*[¢/]*\s*kwh", "commercial_per_kwh"),
-                (r"on[- ]peak[:\s]+\$?([\d.]+)\s*[¢/]*\s*kwh", "on_peak_per_kwh"),
-                (r"off[- ]peak[:\s]+\$?([\d.]+)\s*[¢/]*\s*kwh", "off_peak_per_kwh"),
-            ]
+            # Look for the most recent rates (first data row after headers)
+            # Pattern: look for lines with dates followed by prices
+            lines = page_text.split("\n")
 
-            for pattern, rate_key in patterns:
-                matches = re.finditer(pattern, page_text, re.IGNORECASE)
-                for match in matches:
-                    price = self.extract_price(match.group(1))
-                    if price:
-                        print(f"    Found {rate_key}: {price}")
-                        rates[rate_key] = price
-                        break
+            found_header = False
+            skip_first_data_row = True  # Skip the 12-month average row
+
+            for i, line in enumerate(lines):
+                # Look for the header row
+                if "standard rate" in line.lower() and (
+                    "on-peak" in line.lower() or "on peak" in line.lower()
+                ):
+                    found_header = True
+                    print(f"  Found header at line {i}: {line[:80]}")
+                    continue
+
+                # After finding header, look for data rows
+                if found_header and i < len(lines) - 1:
+                    # Check if this line has a date pattern (month name, skip "avg")
+                    if any(
+                        month in line.lower()
+                        for month in [
+                            "jan",
+                            "feb",
+                            "mar",
+                            "apr",
+                            "may",
+                            "jun",
+                            "jul",
+                            "aug",
+                            "sep",
+                            "oct",
+                            "nov",
+                            "dec",
+                        ]
+                    ):
+                        # Skip the first data row (12-month average)
+                        if skip_first_data_row:
+                            print(f"  Skipping 12-month average row: {line}")
+                            skip_first_data_row = False
+                            continue
+
+                        print(f"  Found data row: {line}")
+                        # Extract all prices from this line
+                        prices = re.findall(r"\$?([\d.]+)", line)
+                        if len(prices) >= 3:
+                            print(f"    Extracted prices: {prices}")
+                            # First price is standard supply, second is on-peak supply, third is off-peak supply
+                            if not rates.get("residential_supply"):
+                                rates["residential_supply"] = self.extract_price(
+                                    prices[0]
+                                )
+                            if not rates.get("on_peak_supply"):
+                                rates["on_peak_supply"] = self.extract_price(prices[1])
+                            if not rates.get("off_peak_supply"):
+                                rates["off_peak_supply"] = self.extract_price(prices[2])
+
+                            # If we found all rates, we're done
+                            if all(
+                                k in rates
+                                for k in [
+                                    "residential_supply",
+                                    "on_peak_supply",
+                                    "off_peak_supply",
+                                ]
+                            ):
+                                break
 
         except Exception as e:
             print(f"  Error extracting from text: {e}")
+            import traceback
+
+            traceback.print_exc()
 
         return rates if rates else None
 
@@ -206,6 +364,12 @@ class SeleniumScraper:
             self.driver.save_screenshot(str(screenshot_path))
             print(f"✓ Screenshot saved to {screenshot_path}")
 
+            # Save HTML for debugging
+            html_path = Path("scraper_page.html")
+            with open(html_path, "w", encoding="utf-8") as f:
+                f.write(self.driver.page_source)
+            print(f"✓ HTML saved to {html_path}")
+
             # Try extraction strategies
             rates = self.extract_from_tables()
             if not rates:
@@ -226,7 +390,7 @@ class SeleniumScraper:
                 print("✓ Browser closed")
 
     def format_rates(self, raw_rates):
-        """Format rates into standard structure."""
+        """Format rates into standard structure with supply charges only."""
         formatted = {
             "effective_date": datetime.now().strftime("%Y-%m-%d"),
             "last_updated": datetime.now().isoformat(),
@@ -234,21 +398,28 @@ class SeleniumScraper:
             "time_of_use": {"on_peak": {}, "off_peak": {}},
         }
 
-        if "residential_per_kwh" in raw_rates:
-            formatted["standard"]["total_per_kwh"] = raw_rates["residential_per_kwh"]
+        # These are supply charges only from the website
+        if "residential_supply" in raw_rates:
+            formatted["standard"]["supply_charge"] = raw_rates["residential_supply"]
+            formatted["standard"]["description"] = (
+                "Standard residential supply charge (delivery charge must be added separately)"
+            )
 
-        if "commercial_per_kwh" in raw_rates:
-            formatted["commercial"] = {"total_per_kwh": raw_rates["commercial_per_kwh"]}
-
-        if "on_peak_per_kwh" in raw_rates:
-            formatted["time_of_use"]["on_peak"]["total_per_kwh"] = raw_rates[
-                "on_peak_per_kwh"
+        if "on_peak_supply" in raw_rates:
+            formatted["time_of_use"]["on_peak"]["supply_charge"] = raw_rates[
+                "on_peak_supply"
             ]
+            formatted["time_of_use"]["on_peak"]["description"] = (
+                "Time-of-Use on-peak supply charge (delivery charge must be added separately)"
+            )
 
-        if "off_peak_per_kwh" in raw_rates:
-            formatted["time_of_use"]["off_peak"]["total_per_kwh"] = raw_rates[
-                "off_peak_per_kwh"
+        if "off_peak_supply" in raw_rates:
+            formatted["time_of_use"]["off_peak"]["supply_charge"] = raw_rates[
+                "off_peak_supply"
             ]
+            formatted["time_of_use"]["off_peak"]["description"] = (
+                "Time-of-Use off-peak supply charge (delivery charge must be added separately)"
+            )
 
         return formatted
 

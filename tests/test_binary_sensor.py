@@ -87,8 +87,8 @@ def test_on_peak_weekday_during_peak_hours(mock_coordinator):
 
     # Monday at 3pm (15:00)
     test_time = datetime(2026, 3, 16, 15, 0)  # Monday, not a holiday
-    with patch("custom_components.central_hudson.utils.datetime") as mock_dt:
-        mock_dt.now.return_value = test_time
+    with patch("custom_components.central_hudson.utils.dt_util.now") as mock_now:
+        mock_now.return_value = test_time
         assert sensor.is_on is True
 
 
@@ -98,8 +98,8 @@ def test_on_peak_weekday_before_peak_hours(mock_coordinator):
 
     # Monday at 1pm (13:00)
     test_time = datetime(2026, 3, 16, 13, 0)  # Monday, not a holiday
-    with patch("custom_components.central_hudson.utils.datetime") as mock_dt:
-        mock_dt.now.return_value = test_time
+    with patch("custom_components.central_hudson.utils.dt_util.now") as mock_now:
+        mock_now.return_value = test_time
         assert sensor.is_on is False
 
 
@@ -109,8 +109,8 @@ def test_on_peak_weekday_after_peak_hours(mock_coordinator):
 
     # Monday at 7pm (19:00)
     test_time = datetime(2026, 3, 16, 19, 0)  # Monday, not a holiday
-    with patch("custom_components.central_hudson.utils.datetime") as mock_dt:
-        mock_dt.now.return_value = test_time
+    with patch("custom_components.central_hudson.utils.dt_util.now") as mock_now:
+        mock_now.return_value = test_time
         assert sensor.is_on is False
 
 
@@ -120,8 +120,8 @@ def test_on_peak_weekend(mock_coordinator):
 
     # Saturday at 3pm (15:00) - should be off-peak even during peak hours
     test_time = datetime(2026, 3, 21, 15, 0)  # Saturday
-    with patch("custom_components.central_hudson.utils.datetime") as mock_dt:
-        mock_dt.now.return_value = test_time
+    with patch("custom_components.central_hudson.utils.dt_util.now") as mock_now:
+        mock_now.return_value = test_time
         assert sensor.is_on is False
 
 
@@ -131,8 +131,8 @@ def test_on_peak_friday_during_peak(mock_coordinator):
 
     # Friday at 6pm (18:00)
     test_time = datetime(2026, 3, 20, 18, 0)  # Friday, not a holiday
-    with patch("custom_components.central_hudson.utils.datetime") as mock_dt:
-        mock_dt.now.return_value = test_time
+    with patch("custom_components.central_hudson.utils.dt_util.now") as mock_now:
+        mock_now.return_value = test_time
         assert sensor.is_on is True
 
 
@@ -142,8 +142,8 @@ def test_on_peak_boundary_start(mock_coordinator):
 
     # Monday at 2pm (14:00) - should be on-peak
     test_time = datetime(2026, 3, 16, 14, 0)  # Monday, not a holiday
-    with patch("custom_components.central_hudson.utils.datetime") as mock_dt:
-        mock_dt.now.return_value = test_time
+    with patch("custom_components.central_hudson.utils.dt_util.now") as mock_now:
+        mock_now.return_value = test_time
         assert sensor.is_on is True
 
 
@@ -153,8 +153,8 @@ def test_on_peak_boundary_end(mock_coordinator):
 
     # Monday at 7pm (19:00) - should be off-peak
     test_time = datetime(2026, 3, 16, 19, 0)  # Monday, not a holiday
-    with patch("custom_components.central_hudson.utils.datetime") as mock_dt:
-        mock_dt.now.return_value = test_time
+    with patch("custom_components.central_hudson.utils.dt_util.now") as mock_now:
+        mock_now.return_value = test_time
         assert sensor.is_on is False
 
 
@@ -164,8 +164,8 @@ def test_binary_sensor_icon_on_peak(mock_coordinator):
 
     # During on-peak
     test_time = datetime(2026, 3, 16, 15, 0)  # Monday at 3pm
-    with patch("custom_components.central_hudson.utils.datetime") as mock_dt:
-        mock_dt.now.return_value = test_time
+    with patch("custom_components.central_hudson.utils.dt_util.now") as mock_now:
+        mock_now.return_value = test_time
         assert sensor.icon == "mdi:clock-alert"
 
 
@@ -175,8 +175,8 @@ def test_binary_sensor_icon_off_peak(mock_coordinator):
 
     # During off-peak
     test_time = datetime(2026, 3, 21, 15, 0)  # Saturday at 3pm
-    with patch("custom_components.central_hudson.utils.datetime") as mock_dt:
-        mock_dt.now.return_value = test_time
+    with patch("custom_components.central_hudson.utils.dt_util.now") as mock_now:
+        mock_now.return_value = test_time
         assert sensor.icon == "mdi:clock-outline"
 
 
@@ -214,8 +214,8 @@ def test_on_peak_new_years_day(mock_coordinator):
 
     # Thursday, January 1, 2026 at 3pm (would be on-peak if not a holiday)
     test_time = datetime(2026, 1, 1, 15, 0)
-    with patch("custom_components.central_hudson.utils.datetime") as mock_dt:
-        mock_dt.now.return_value = test_time
+    with patch("custom_components.central_hudson.utils.dt_util.now") as mock_now:
+        mock_now.return_value = test_time
         assert sensor.is_on is False
 
 
@@ -225,8 +225,8 @@ def test_on_peak_independence_day(mock_coordinator):
 
     # Friday, July 4, 2025 at 3pm (would be on-peak if not a holiday)
     test_time = datetime(2025, 7, 4, 15, 0)
-    with patch("custom_components.central_hudson.utils.datetime") as mock_dt:
-        mock_dt.now.return_value = test_time
+    with patch("custom_components.central_hudson.utils.dt_util.now") as mock_now:
+        mock_now.return_value = test_time
         assert sensor.is_on is False
 
 
@@ -236,8 +236,8 @@ def test_on_peak_christmas(mock_coordinator):
 
     # Friday, December 25, 2026 at 3pm (would be on-peak if not a holiday)
     test_time = datetime(2026, 12, 25, 15, 0)
-    with patch("custom_components.central_hudson.utils.datetime") as mock_dt:
-        mock_dt.now.return_value = test_time
+    with patch("custom_components.central_hudson.utils.dt_util.now") as mock_now:
+        mock_now.return_value = test_time
         assert sensor.is_on is False
 
 
@@ -247,8 +247,8 @@ def test_on_peak_memorial_day(mock_coordinator):
 
     # Monday, May 25, 2026 at 3pm (would be on-peak if not a holiday)
     test_time = datetime(2026, 5, 25, 15, 0)
-    with patch("custom_components.central_hudson.utils.datetime") as mock_dt:
-        mock_dt.now.return_value = test_time
+    with patch("custom_components.central_hudson.utils.dt_util.now") as mock_now:
+        mock_now.return_value = test_time
         assert sensor.is_on is False
 
 
@@ -258,8 +258,8 @@ def test_on_peak_labor_day(mock_coordinator):
 
     # Monday, September 7, 2026 at 3pm (would be on-peak if not a holiday)
     test_time = datetime(2026, 9, 7, 15, 0)
-    with patch("custom_components.central_hudson.utils.datetime") as mock_dt:
-        mock_dt.now.return_value = test_time
+    with patch("custom_components.central_hudson.utils.dt_util.now") as mock_now:
+        mock_now.return_value = test_time
         assert sensor.is_on is False
 
 
@@ -269,8 +269,8 @@ def test_on_peak_thanksgiving(mock_coordinator):
 
     # Thursday, November 26, 2026 at 3pm (would be on-peak if not a holiday)
     test_time = datetime(2026, 11, 26, 15, 0)
-    with patch("custom_components.central_hudson.utils.datetime") as mock_dt:
-        mock_dt.now.return_value = test_time
+    with patch("custom_components.central_hudson.utils.dt_util.now") as mock_now:
+        mock_now.return_value = test_time
         assert sensor.is_on is False
 
 

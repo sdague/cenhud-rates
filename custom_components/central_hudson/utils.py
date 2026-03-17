@@ -1,6 +1,8 @@
 """Utility functions for Central Hudson integration."""
 
-from datetime import date, datetime
+from datetime import date
+
+from homeassistant.util import dt as dt_util
 
 
 def get_us_holidays(year: int) -> list[date]:
@@ -51,13 +53,13 @@ def is_on_peak_time(now=None) -> bool:
     """Determine if given datetime is on-peak (Mon-Fri 2pm-7pm, excluding holidays).
 
     Args:
-        now: datetime object to check (defaults to current time)
+        now: datetime object to check (defaults to current time in local timezone)
 
     Returns:
         True if on-peak, False otherwise
     """
     if now is None:
-        now = datetime.now()
+        now = dt_util.now()
 
     # Check if it's a holiday (always off-peak)
     today = now.date()

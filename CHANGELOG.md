@@ -7,8 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.3] - 2026-03-17
+
 ### Fixed
 
+- Fixed peak/off-peak time determination to use timezone-aware datetime with proper daylight savings time handling
+- Changed `is_on_peak_time()` to use Home Assistant's `dt_util.now()` instead of `datetime.now()`
 - Fixed `fetch_prices_selenium.py` scraper to properly skip 12-month average row
 - Added extraction of effective date from first column of pricing data
 - Added automatic calculation of total_per_kwh using delivery charges from historical data

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Updated `actions/setup-python` from v5 to v6 in CI workflow
+- Updated `actions/checkout` from v4 to v6 in CI workflow
 
 ## [1.2.3] - 2026-03-17
 

@@ -1,6 +1,7 @@
 """Utility functions for Central Hudson integration."""
 
 from datetime import date
+from zoneinfo import ZoneInfo
 
 from homeassistant.util import dt as dt_util
 
@@ -53,13 +54,18 @@ def is_on_peak_time(now=None) -> bool:
     """Determine if given datetime is on-peak (Mon-Fri 2pm-7pm, excluding holidays).
 
     Args:
-        now: datetime object to check (defaults to current time in local timezone)
+        now: datetime object to check (defaults to current time in New York timezone)
 
     Returns:
         True if on-peak, False otherwise
     """
+    ny_tz = ZoneInfo("America/New_York")
+
     if now is None:
-        now = dt_util.now()
+        now = dt_util.now(ny_tz)
+    else:
+        # Convert to New York timezone if not already
+        now = now.astimezone(ny_tz)
 
     # Check if it's a holiday (always off-peak)
     today = now.date()

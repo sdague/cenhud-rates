@@ -77,6 +77,7 @@ class CentralHudsonOnPeakSensor(CoordinatorEntity, BinarySensorEntity):
             "on_peak_hours": "Mon-Fri 2pm-7pm (excluding holidays)",
             "current_day": now.strftime("%A"),
             "current_time": now.strftime("%I:%M %p"),
+            "current_hour": now.hour,
             "is_holiday": str(is_holiday),
         }
 

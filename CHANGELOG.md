@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed binary_sensor platform not being exposed in Home Assistant by adding Platform.BINARY_SENSOR to PLATFORMS list
 
+### Changed
+
+- Simplified `is_on_peak_time()` by removing explicit timezone handling since `dt_util.now()` already returns timezone-aware datetime
+
 ## [1.2.4] - 2026-03-25
 
 ### Changed

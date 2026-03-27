@@ -26,7 +26,7 @@ from .utils import is_on_peak_time
 
 _LOGGER = logging.getLogger(__name__)
 
-SCAN_INTERVAL = timedelta(hours=1)
+SCAN_INTERVAL = timedelta(minutes=1)
 
 
 async def async_setup_entry(

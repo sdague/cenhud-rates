@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Simplified `is_on_peak_time()` by removing explicit timezone handling since `dt_util.now()` already returns timezone-aware datetime
+- Reduced scan interval from 1 hour to 1 minute for more responsive on-peak/off-peak transitions
 
 ## [1.2.4] - 2026-03-25
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import timedelta
+from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -69,11 +69,25 @@ class CentralHudsonDataCoordinator(DataUpdateCoordinator):
             with open(data_file) as f:
                 raw_data = json.load(f)
 
-            # Get the most recent rate entry
+            # Get the most recent rate entry that is on or before today
             if "rates" in raw_data and raw_data["rates"]:
-                # Sort by effective_date to get the most recent
+                today = date.today()
+
+                # Filter rates to only those with effective_date on or before today
+                effective_rates = [
+                    rate
+                    for rate in raw_data["rates"]
+                    if rate.get("effective_date")
+                    and date.fromisoformat(rate["effective_date"]) <= today
+                ]
+
+                if not effective_rates:
+                    # If no rates are effective yet, use the earliest one
+                    effective_rates = raw_data["rates"]
+
+                # Sort by effective_date to get the most recent effective rate
                 sorted_rates = sorted(
-                    raw_data["rates"],
+                    effective_rates,
                     key=lambda x: x.get("effective_date", ""),
                     reverse=True,
                 )

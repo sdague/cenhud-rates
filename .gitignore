@@ -89,6 +89,13 @@ venv.bak/
 # Rope project settings
 .ropeproject
 
+# Scraper
+scraper_screenshot.png
+scraper_page.html
+
+# Claude Code
+.claude/
+
 # mkdocs documentation
 /site
 

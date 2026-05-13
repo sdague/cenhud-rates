@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated with May 2026 prices (effective 2026-05-12)
 - Updated .gitignore to exclude scraper debug artifacts and Claude Code local settings
 
 ## [1.3.0] - 2026-04-12

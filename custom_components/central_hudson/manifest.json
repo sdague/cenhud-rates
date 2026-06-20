@@ -1,12 +1,14 @@
 {
   "domain": "central_hudson",
   "name": "Central Hudson Electric Rates",
-  "codeowners": ["@sdague"],
+  "codeowners": [
+    "@sdague"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/sdague/cenhud-rates",
   "integration_type": "service",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/sdague/cenhud-rates/issues",
   "requirements": [],
-  "version": "1.3.1"
+  "version": "1.3.2"
 }

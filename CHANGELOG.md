@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.3] - 2026-07-02
+
 ### Changed
 
 - Updated .gitignore to exclude scraper debug artifacts and Claude Code local settings
+- Update with June 13 prices, and new delivery charge increase for July 2027
 
 ## [1.3.2] - 2026-06-20
 

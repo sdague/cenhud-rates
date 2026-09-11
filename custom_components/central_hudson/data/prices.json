@@ -103,7 +103,7 @@
       "standard": {
         "supply_charge": 0.12707,
         "delivery_charge": 0.14554,
-        "total_per_kwh": 0.27216,
+        "total_per_kwh": 0.27261,
         "description": "Standard residential rate (supply + delivery)"
       },
       "time_of_use": {

@@ -48,6 +48,48 @@ The scraper will attempt to fetch rates from the Central Hudson website and appe
 
 ## Rate History
 
+### September 2026 (Effective: 2026-09-11)
+
+**Supply Charges:**
+- Standard: $0.12116/kWh
+- On-Peak: $0.13809/kWh
+- Off-Peak: $0.06598/kWh
+
+**Delivery Charges:**
+- Standard: $0.14554/kWh
+- On-Peak: $0.15516/kWh
+- Off-Peak: $0.13417/kWh
+
+**Total Rates (Supply + Delivery):**
+- Standard: $0.26670/kWh
+- On-Peak: $0.29325/kWh
+- Off-Peak: $0.20015/kWh
+
+**Customer Charge:** $22.50/month
+
+---
+
+### September 2026 (Effective: 2026-09-01)
+
+**Supply Charges:**
+- Standard: $0.13778/kWh
+- On-Peak: $0.21762/kWh
+- Off-Peak: $0.08732/kWh
+
+**Delivery Charges:**
+- Standard: $0.14554/kWh
+- On-Peak: $0.15516/kWh
+- Off-Peak: $0.13417/kWh
+
+**Total Rates (Supply + Delivery):**
+- Standard: $0.28332/kWh
+- On-Peak: $0.37278/kWh
+- Off-Peak: $0.22149/kWh
+
+**Customer Charge:** $22.50/month
+
+---
+
 ### February 2026 (Effective: 2026-02-11)
 
 **Supply Charges:**

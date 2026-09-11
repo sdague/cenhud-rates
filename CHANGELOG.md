@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.6] - 2026-09-11
+
 ### Changed
 
 - Updated with Sept 1 and Sept 11, 2026 prices
+
+### Fixed
+
+- Corrected incorrect total_per_kwh for 2026-07-01 standard rate
 
 ## [1.3.5] - 2026-08-15
 

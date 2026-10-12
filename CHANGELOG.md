@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Replaced brand icon with the Central Hudson logo, and added logo and
+  dark-mode variants
+
 ## [1.3.7] - 2026-10-12
 
 ### Changed

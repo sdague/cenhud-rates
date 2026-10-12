@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Updated with Oct 12, 2026 prices
+
 ## [1.3.6] - 2026-09-11
 
 ### Changed

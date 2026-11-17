@@ -2,6 +2,30 @@
   "customer_charge": 22.5,
   "rates": [
     {
+      "effective_date": "2026-11-11",
+      "last_updated": "2026-11-11T12:00:00-05:00",
+      "standard": {
+        "supply_charge": 0.08086,
+        "delivery_charge": 0.14554,
+        "total_per_kwh": 0.2264,
+        "description": "Standard residential rate (supply + delivery)"
+      },
+      "time_of_use": {
+        "on_peak": {
+          "supply_charge": 0.11797,
+          "delivery_charge": 0.15516,
+          "total_per_kwh": 0.27313,
+          "description": "Time-of-Use on-peak rate (supply + delivery)"
+        },
+        "off_peak": {
+          "supply_charge": 0.05624,
+          "delivery_charge": 0.13417,
+          "total_per_kwh": 0.19041,
+          "description": "Time-of-Use off-peak rate (supply + delivery)"
+        }
+      }
+    },
+    {
       "effective_date": "2026-10-12",
       "last_updated": "2026-10-12T12:00:00-04:00",
       "standard": {

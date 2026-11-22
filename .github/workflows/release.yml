@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11", "3.12"]
+        python-version: ["3.13", "3.14"]
 
     steps:
     - uses: actions/checkout@v6
@@ -63,6 +63,10 @@ jobs:
       uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
+
+    - name: Install legacy timezone aliases
+      # ubuntu-latest (26.04) image no longer preinstalls tzdata-legacy, which holds the US/* zone links the HA test fixtures use
+      run: sudo apt-get update && sudo apt-get install -y tzdata-legacy
 
     - name: Install dependencies
       run: |

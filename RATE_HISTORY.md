@@ -4,9 +4,18 @@ This file documents the historical electricity rates for Central Hudson customer
 
 ## How to Add New Rates
 
-When new rates are published (typically monthly), you can add them in two ways:
+When new rates are published (typically monthly), you can add them in three ways:
 
-### Option 1: Manual Update
+### Option 1: Interactive Script (recommended)
+```bash
+make update-rates
+```
+
+Prompts for the effective date and charges (delivery and customer charges
+default to the previous values), then updates `prices.json`, this file, and
+the `[Unreleased]` section of `CHANGELOG.md`.
+
+### Option 2: Manual Update
 Edit `custom_components/central_hudson/data/prices.json` and add a new entry to the `rates` array:
 
 ```json
@@ -38,7 +47,7 @@ Edit `custom_components/central_hudson/data/prices.json` and add a new entry to 
 
 The integration will automatically use the most recent rate based on `effective_date`.
 
-### Option 2: Run Scraper
+### Option 3: Run Scraper
 ```bash
 cd scraper
 python fetch_prices.py

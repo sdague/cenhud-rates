@@ -1,10 +1,11 @@
-.PHONY: help test lint format validate-hacs install-dev install-hooks clean prepare-release
+.PHONY: help test lint format update-rates validate-hacs install-dev install-hooks clean prepare-release
 
 help:
 	@echo "Available commands:"
 	@echo "  make test              - Run pytest tests"
 	@echo "  make lint              - Run ruff linting"
 	@echo "  make format            - Format code with ruff"
+	@echo "  make update-rates      - Interactively add a new rate period"
 	@echo "  make validate-hacs     - Run HACS validation checks"
 	@echo "  make install-dev       - Install development dependencies"
 	@echo "  make install-hooks     - Install git pre-commit hooks"
@@ -15,11 +16,14 @@ test:
 	pytest tests/ -v
 
 lint:
-	ruff check custom_components/ tests/ scraper/
-	ruff format --check custom_components/ tests/ scraper/
+	ruff check custom_components/ tests/ scraper/ scripts/update_rates.py
+	ruff format --check custom_components/ tests/ scraper/ scripts/update_rates.py
 
 format:
-	ruff format custom_components/ tests/ scraper/
+	ruff format custom_components/ tests/ scraper/ scripts/update_rates.py
+
+update-rates:
+	python3 scripts/update_rates.py
 
 validate-hacs:
 	./scripts/validate-hacs.sh

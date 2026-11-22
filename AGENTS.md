@@ -55,9 +55,11 @@ Ruff handles both linting and formatting. Run `make lint` to check,
 ## Rate Data
 
 `prices.json` contains an array of rate periods with effective dates. The
-sensor picks the most recent rate whose `effective_date` has passed. When
-updating rates, run the scraper or edit the JSON directly, then add a
-CHANGELOG entry.
+sensor picks the most recent rate whose `effective_date` has passed. To add
+a new rate period, run `make update-rates` (`scripts/update_rates.py`), which
+prompts for the charges and updates `prices.json`, `RATE_HISTORY.md`, and the
+`[Unreleased]` CHANGELOG section together. Alternatively run the scraper or
+edit the JSON directly, then update RATE_HISTORY.md and CHANGELOG by hand.
 
 ## Releasing
 
